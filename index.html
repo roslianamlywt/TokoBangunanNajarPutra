@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Toko Bangunan Najar Putra</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header>
+    <img src="logonajar.png" alt="Logo Toko Najar Putra" width="100">
+    <div class="row">
+      <span class="chip"><span id="loginState">Belum login</span></span>
+      <button id="btnLogout" class="btn-bad" style="display:none" onclick="logout()">Logout</button>
+    </div>
+  </header>
+  
+
+  <div class="wrap">
+
+    <!-- LOGIN -->
+    <section id="sec-login" class="active">
+      <div class="card p16 login">
+        <div class="brand"> Toko Bangunan Najar Putra</div>
+        <div class="grid">
+          <input id="inUser" placeholder="Username" />
+          <input id="inPass" type="password" placeholder="Password" />
+          <button class="btn" onclick="login()">Login</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- MENU -->
+    <section id="sec-menu">
+      <div class="card p16">
+        <h2 class="title">Menu</h2>
+        <div class="grid grid-3">
+          <button class="btn" onclick="go('sec-in')">Data Barang Masuk</button>
+          <button class="btn" onclick="go('sec-out')">Data Barang Keluar</button>
+          <button class="btn" onclick="go('sec-pos')">Transaksi Kasir</button>
+          <button class="btn" onclick="go('sec-sales')">Daftar Transaksi</button>
+          <button class="btn" onclick="go('sec-opname')">Stok Opname</button>
+          <button class="btn btn-ghost" onclick="go('sec-products')">Master Produk</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- MASTER PRODUK -->
+    <section id="sec-products">
+      <div class="card p16">
+        <div class="row wrap" style="justify-content:space-between">
+          <h2 class="title">Master Produk</h2>
+        </div>
+        <div class="grid grid-3 mt12">
+          <input id="pName" placeholder="Nama produk" />
+          <input id="pSku" placeholder="SKU / Barcode (opsional)" />
+          <input id="pPrice" type="number" placeholder="Harga Jual" />
+        </div>
+        <div class="row mt8">
+          <button class="btn-ok" onclick="addProduct()">Tambah / Update</button>
+          <input id="pSearch" placeholder="Cari produk..." oninput="renderProducts()" />
+        </div>
+        <div class="mt16">
+          <table>
+            <thead><tr><th>Nama</th><th>SKU</th><th class="right">Harga</th><th class="right">Stok</th><th>Aksi</th></tr></thead>
+            <tbody id="tblProducts"></tbody>
+          </table>
+          <button class="btn btn-ghost" onclick="go('sec-menu')">Kembali</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- BARANG MASUK -->
+    <section id="sec-in">
+      <div class="card p16">
+        <div class="row wrap" style="justify-content:space-between">
+          <h2 class="title">Barang Masuk</h2>
+        </div>
+        <div class="grid grid-3 mt12">
+          <select id="inProd"></select>
+          <input id="inQty" type="number" placeholder="Qty" />
+          <input id="inNote" placeholder="Catatan (No. Nota / Supplier)" />
+        </div>
+        <div class="row mt8">
+          <button class="btn-ok" onclick="stockIn()">Tambahkan</button>
+          <button class="btn-ghost" onclick="openNewProductFrom('inProd')">+ Produk baru</button>
+        </div>
+        <div class="mt16">
+          <table>
+            <thead><tr><th>Tgl</th><th>Produk</th><th class="right">Qty</th><th>Catatan</th></tr></thead>
+            <tbody id="tblIn"></tbody>
+          </table>
+          <button class="btn btn-ghost" onclick="go('sec-menu')">Kembali</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- BARANG KELUAR (PENYESUAIAN) -->
+    <section id="sec-out">
+      <div class="card p16">
+        <div class="row wrap" style="justify-content:space-between">
+          <h2 class="title">Barang Keluar / Penyesuaian</h2>
+        </div>
+        <div class="grid grid-3 mt12">
+          <select id="outProd"></select>
+          <input id="outQty" type="number" placeholder="Qty" />
+          <input id="outNote" placeholder="Alasan (rusak / hilang / lainnya)" />
+        </div>
+        <div class="row mt8">
+          <button class="btn-warn" onclick="stockOut()">Kurangi</button>
+          <button class="btn-ghost" onclick="openNewProductFrom('outProd')">+ Produk baru</button>
+        </div>
+        <div class="mt16">
+          <table>
+            <thead><tr><th>Tgl</th><th>Produk</th><th class="right">Qty</th><th>Alasan</th></tr></thead>
+            <tbody id="tblOut"></tbody>
+          </table>
+           <button class="btn btn-ghost" onclick="go('sec-menu')">Kembali</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- POS / TRANSAKSI KASIR -->
+    <section id="sec-pos">
+      <div class="card p16">
+        <div class="row wrap" style="justify-content:space-between">
+          <h2 class="title">Transaksi Kasir</h2>
+          
+        </div>
+        <div class="grid grid-3 mt12">
+          <select id="posProd"></select>
+          <input id="posPrice" type="number" placeholder="Harga" />
+          <div class="row">
+            <input id="posQty" type="number" placeholder="Qty" />
+            <button class="btn-ok" onclick="addToCart()">Tambah</button>
+          </div>
+        </div>
+        <div class="mt16">
+          <table>
+            <thead><tr><th>Produk</th><th class="right">Harga</th><th class="right">Qty</th><th class="right">Subtotal</th><th></th></tr></thead>
+            <tbody id="tblCart"></tbody>
+            <tfoot><tr><td colspan="3" class="right">Subtotal</td><td class="right" id="cartSubtotal">0</td><td></td></tr></tfoot>
+          </table>
+          
+          <!-- Payment Summary -->
+          <div class="payment-summary">
+            <div class="grid grid-4">
+              <input id="payDiscount" type="number" placeholder="Diskon (Rp)" oninput="updatePaymentSummary()" />
+              <input id="payCash" type="number" placeholder="Tunai diterima" oninput="updatePaymentSummary()" />
+              <input id="payNote" placeholder="Catatan (opsional)" />
+              <div></div>
+            </div>
+            
+            <div class="payment-row">
+              <span>Subtotal:</span>
+              <span class="payment-value" id="summarySubtotal">Rp 0</span>
+            </div>
+            <div class="payment-row">
+              <span>Diskon:</span>
+              <span class="payment-value" id="summaryDiscount">Rp 0</span>
+            </div>
+            <div class="payment-row total-row">
+              <span>Total Bayar:</span>
+              <span class="payment-value" id="summaryTotal">Rp 0</span>
+            </div>
+            <div class="payment-row">
+              <span>Tunai Diterima:</span>
+              <span class="payment-value" id="summaryCash">Rp 0</span>
+            </div>
+            
+            <div id="changeDisplay" class="change-display" style="display:none">
+              Kembalian: <span id="changeAmount">Rp 0</span>
+            </div>
+            
+            <button class="btn mt12" onclick="checkout()" id="checkoutBtn" disabled>Bayar & Cetak</button>
+          </div>
+        </div>
+      </div>
+      <button class="btn btn-ghost" onclick="go('sec-menu')">⬅ Kembali</button>
+    </section>
+
+    <!-- DAFTAR TRANSAKSI -->
+    <section id="sec-sales">
+      <div class="card p16">
+        <div class="row wrap" style="justify-content:space-between">
+          <h2 class="title">Daftar Transaksi</h2>
+        </div>
+        <div class="grid grid-3 mt12">
+          <input id="sFrom" type="date" />
+          <input id="sTo" type="date" />
+          <button class="btn-ghost" onclick="renderSales()">Filter</button>
+        </div>
+        <div class="mt16">
+          <table>
+            <thead><tr><th>Waktu</th><th>ID</th><th class="right">Item</th><th class="right">Total</th><th>Kasir</th><th>Aksi</th></tr></thead>
+            <tbody id="tblSales"></tbody>
+          </table>
+          <button class="btn btn-ghost" onclick="go('sec-menu')">Kembali</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- STOK OPNAME -->
+    <section id="sec-opname">
+      <div class="card p16">
+        <div class="row wrap" style="justify-content:space-between">
+          <h2 class="title">Stok Opname</h2>
+        </div>
+        <div class="mt12">
+          <table>
+            <thead><tr><th>Produk</th><th class="right">Stok Sistem</th><th class="right">Stok Actual</th></tr></thead>
+            <tbody id="tblOpname"></tbody>
+          </table>
+          <div class="row mt12">
+            <button class="btn" onclick="applyOpname()">Terapkan Opname</button>
+          </div>
+        </div>
+      </div>
+      <button class="btn btn-ghost" onclick="go('sec-menu')">Kembali</button>
+    </section>
+  </div>
+
+  <!-- PRINT AREA (THERMAL) -->
+  <div id="printArea">
+    <div class="header">
+      <img src="logonajar.png" alt="Logo Toko Najar Putra" width="90" class="logo">
+      <h3>TOKO BANGUNAN NAJAR PUTRA</h3>
+      <p>Kp. Cilame RT 001 RW 13 Desa Narawita Cicalengka</p>
+      <p>Telp: 0812-2398-4744</p>
+      
+      <p id="prnMeta"></p>
+    </div>
+
+    <div class="divider"></div>
+
+    <table class="struk">
+      <tbody id="prnBody"></tbody>
+    </table>
+
+    <div class="divider"></div>
+
+    <p class="footer">Terima kasih 🙏<br/>Powered by KKN 17 Universitas Ma'soem Desa Narawita 2025</p>
+  </div>
+
+  <footer>
+    Powered by <b>KKN 17 Desa Narawita 2025</b><br>
+    Universitas Ma'soem
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
